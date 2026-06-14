@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delper GCCP — Global Capital Compounding Programme</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --navy:   #0D1B3E;
+    --teal:   #028090;
+    --mint:   #02C39A;
+    --silver: #F4F7FA;
+    --lgrey:  #D1D9E0;
+    --dgrey:  #4A5568;
+    --white:  #FFFFFF;
+    --green:  #065F46;
+    --amber:  #92400E;
+    --ink:    #1A202C;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--navy);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* ── NAVIGATION ─────────────────────────────────────────────────────────── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(13,27,62,0.97);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(2,128,144,0.3);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem; height: 52px;
+  }
+  .nav-brand {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; font-weight: 600;
+    color: var(--mint); letter-spacing: 0.08em;
+  }
+  .nav-links { display: flex; gap: 1.5rem; }
+  .nav-links a {
+    font-size: 12px; font-weight: 500; color: var(--lgrey);
+    text-decoration: none; letter-spacing: 0.05em;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--mint); }
+
+  /* ── HERO ───────────────────────────────────────────────────────────────── */
+  .hero {
+    min-height: 100vh;
+    background: var(--navy);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 100px 2rem 4rem;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 50%, rgba(2,128,144,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 80% 30%, rgba(2,195,154,0.07) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 600;
+    color: var(--mint); letter-spacing: 0.18em;
+    text-transform: uppercase; margin-bottom: 1.5rem;
+  }
+  .hero-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(3rem, 8vw, 7rem);
+    color: var(--white); line-height: 1.0;
+    text-align: center; margin-bottom: 1rem;
+  }
+  .hero-title em {
+    font-style: italic; color: var(--mint);
+  }
+  .hero-sub {
+    font-size: 16px; color: var(--lgrey);
+    text-align: center; max-width: 640px;
+    line-height: 1.6; margin-bottom: 3rem;
+  }
+
+  /* The signature element: a live ticker of the terminal number */
+  .terminal-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 600; color: var(--white);
+    text-align: center; margin-bottom: 0.4rem;
+    letter-spacing: -0.02em;
+  }
+  .terminal-number span { color: var(--mint); }
+  .terminal-label {
+    font-size: 12px; color: var(--dgrey);
+    text-align: center; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 3rem;
+  }
+
+  /* Hero stats strip */
+  .hero-stats {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    gap: 1px; width: 100%; max-width: 900px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(2,128,144,0.2);
+  }
+  .hero-stat {
+    background: rgba(13,27,62,0.8);
+    padding: 1.2rem 1rem; text-align: center;
+  }
+  .hero-stat-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px; font-weight: 600; color: var(--mint);
+    display: block; margin-bottom: 0.3rem;
+  }
+  .hero-stat-label {
+    font-size: 11px; color: var(--lgrey);
+    line-height: 1.3;
+  }
+
+  /* ── PAGE BODY ──────────────────────────────────────────────────────────── */
+  .page { background: var(--silver); }
+
+  /* ── CONFIDENTIAL BANNER ────────────────────────────────────────────────── */
+  .banner {
+    background: var(--teal); color: var(--white);
+    text-align: center; padding: 0.6rem 2rem;
+    font-size: 12px; font-weight: 500; letter-spacing: 0.08em;
+  }
+
+  /* ── SECTIONS ───────────────────────────────────────────────────────────── */
+  .section {
+    max-width: 900px; margin: 0 auto;
+    padding: 4rem 2rem;
+    border-bottom: 1px solid var(--lgrey);
+  }
+  .section:last-child { border-bottom: none; }
+
+  .section-header {
+    display: flex; align-items: baseline; gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--teal);
+    font-weight: 600; letter-spacing: 0.12em;
+    flex-shrink: 0; padding-top: 4px;
+  }
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    color: var(--navy); line-height: 1.15;
+  }
+  .section-title em { font-style: italic; color: var(--teal); }
+
+  /* Rule under section header */
+  .section-rule {
+    height: 2px;
+    background: linear-gradient(to right, var(--teal), transparent);
+    margin-bottom: 2rem;
+  }
+
+  p { color: var(--dgrey); margin-bottom: 1.2rem; }
+  p strong { color: var(--navy); font-weight: 600; }
+
+  /* ── CALLOUT ────────────────────────────────────────────────────────────── */
+  .callout {
+    background: var(--navy);
+    border-left: 3px solid var(--mint);
+    padding: 1.2rem 1.5rem;
+    margin: 2rem 0;
+  }
+  .callout p {
+    color: var(--lgrey); margin: 0;
+    font-size: 14px; line-height: 1.6;
+  }
+  .callout p strong { color: var(--mint); }
+
+  /* ── DATA TABLES ────────────────────────────────────────────────────────── */
+  .data-table {
+    width: 100%; border-collapse: collapse;
+    margin: 1.5rem 0; font-size: 13px;
+  }
+  .data-table th {
+    background: var(--navy); color: var(--white);
+    padding: 0.7rem 0.9rem; text-align: left;
+    font-weight: 600; font-size: 12px;
+    letter-spacing: 0.04em;
+  }
+  .data-table th:not(:first-child) { text-align: center; }
+  .data-table td {
+    padding: 0.65rem 0.9rem; border-bottom: 1px solid var(--lgrey);
+    color: var(--dgrey); vertical-align: top;
+  }
+  .data-table td:not(:first-child) { text-align: center; }
+  .data-table tr:nth-child(even) td { background: var(--white); }
+  .data-table tr.total td {
+    background: var(--navy); color: var(--mint);
+    font-weight: 700; font-size: 13px;
+  }
+  .data-table td.bold { font-weight: 700; color: var(--navy); }
+  .data-table td.green { color: var(--green); font-weight: 700; }
+  .data-table td.teal { color: var(--teal); font-weight: 700; }
+
+  /* ── STAT CARDS ─────────────────────────────────────────────────────────── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1px; background: var(--lgrey);
+    border: 1px solid var(--lgrey);
+    margin: 1.5rem 0;
+  }
+  .stat-card {
+    background: var(--white);
+    padding: 1.2rem 1rem; text-align: center;
+  }
+  .stat-card.dark { background: var(--navy); }
+  .stat-card-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px; font-weight: 600;
+    color: var(--teal); display: block;
+    margin-bottom: 0.4rem;
+  }
+  .stat-card.dark .stat-card-val { color: var(--mint); }
+  .stat-card-label {
+    font-size: 11px; color: var(--dgrey); line-height: 1.3;
+  }
+  .stat-card.dark .stat-card-label { color: var(--lgrey); }
+
+  /* ── TIMELINE ───────────────────────────────────────────────────────────── */
+  .timeline { position: relative; margin: 2rem 0; }
+  .timeline::before {
+    content: '';
+    position: absolute; left: 60px; top: 0; bottom: 0;
+    width: 2px; background: var(--lgrey);
+  }
+  .tl-item {
+    display: flex; gap: 1.5rem;
+    padding: 0 0 2rem 0; position: relative;
+  }
+  .tl-year {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; font-weight: 600; color: var(--teal);
+    width: 52px; flex-shrink: 0; padding-top: 2px;
+    text-align: right;
+  }
+  .tl-dot {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--teal); flex-shrink: 0;
+    margin-top: 5px; position: relative; z-index: 1;
+    box-shadow: 0 0 0 3px var(--silver);
+  }
+  .tl-dot.mint { background: var(--mint); }
+  .tl-content { flex: 1; }
+  .tl-heading {
+    font-weight: 700; color: var(--navy);
+    font-size: 14px; margin-bottom: 0.4rem;
+  }
+  .tl-body { font-size: 13px; color: var(--dgrey); line-height: 1.6; }
+  .tl-numbers {
+    display: flex; gap: 1rem; margin-top: 0.6rem; flex-wrap: wrap;
+  }
+  .tl-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 600;
+    color: var(--white); background: var(--teal);
+    padding: 0.2rem 0.6rem;
+  }
+  .tl-num.green { background: var(--green); }
+  .tl-num.navy { background: var(--navy); }
+
+  /* ── LAYER STACK ────────────────────────────────────────────────────────── */
+  .layer-stack { margin: 1.5rem 0; }
+  .layer-item {
+    display: flex; align-items: stretch;
+    margin-bottom: 2px;
+  }
+  .layer-badge {
+    width: 36px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 700; color: var(--white);
+  }
+  .layer-item:nth-child(1) .layer-badge { background: #0D6E7C; }
+  .layer-item:nth-child(2) .layer-badge { background: #028090; }
+  .layer-item:nth-child(3) .layer-badge { background: #029AAD; }
+  .layer-item:nth-child(4) .layer-badge { background: #02B5C4; }
+  .layer-item:nth-child(5) .layer-badge { background: #02C39A; }
+  .layer-item:nth-child(6) .layer-badge { background: #00A87D; }
+  .layer-item.total .layer-badge { background: var(--navy); }
+  .layer-body {
+    flex: 1; background: var(--white);
+    padding: 0.6rem 1rem;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem;
+  }
+  .layer-item.total .layer-body { background: var(--navy); }
+  .layer-name { font-size: 13px; font-weight: 600; color: var(--navy); }
+  .layer-item.total .layer-name { color: var(--mint); }
+  .layer-func { font-size: 12px; color: var(--dgrey); }
+  .layer-item.total .layer-func { color: var(--lgrey); }
+  .layer-fee {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px; font-weight: 700; color: var(--green);
+    flex-shrink: 0;
+  }
+  .layer-item.total .layer-fee { color: var(--mint); font-size: 18px; }
+
+  /* ── BUILD BATCHES ──────────────────────────────────────────────────────── */
+  .batch-grid {
+    display: grid; grid-template-columns: 1fr;
+    gap: 2px; margin: 1.5rem 0;
+  }
+  .batch-row {
+    display: grid;
+    grid-template-columns: 80px 80px 120px 1fr 100px 110px;
+    gap: 1px; background: var(--lgrey);
+  }
+  .batch-row.header { background: var(--navy); }
+  .batch-cell {
+    background: var(--white); padding: 0.65rem 0.8rem;
+    font-size: 13px; color: var(--dgrey);
+  }
+  .batch-row.header .batch-cell {
+    background: var(--navy); color: var(--white);
+    font-weight: 700; font-size: 12px; letter-spacing: 0.04em;
+  }
+  .batch-row:nth-child(even) .batch-cell { background: var(--silver); }
+  .batch-row.total-row .batch-cell {
+    background: var(--navy); color: var(--mint);
+    font-weight: 700;
+  }
+  .batch-cell.bold { font-weight: 700; color: var(--navy); }
+  .batch-cell.green { color: var(--green); font-weight: 700; }
+
+  /* ── TERMINAL ───────────────────────────────────────────────────────────── */
+  .terminal-section {
+    background: var(--navy);
+    padding: 4rem 2rem;
+  }
+  .terminal-inner { max-width: 900px; margin: 0 auto; }
+  .terminal-section .section-title { color: var(--white); }
+  .terminal-section .section-num { color: var(--mint); }
+  .terminal-section p { color: var(--lgrey); }
+  .terminal-section p strong { color: var(--white); }
+  .terminal-section .section-rule {
+    background: linear-gradient(to right, var(--mint), transparent);
+  }
+
+  .terminal-stats {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1px; margin: 2rem 0;
+    background: rgba(255,255,255,0.08);
+  }
+  .terminal-stat {
+    padding: 1.5rem 1rem; text-align: center;
+    background: rgba(255,255,255,0.04);
+  }
+  .terminal-stat-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px; font-weight: 600; color: var(--mint);
+    display: block; margin-bottom: 0.3rem;
+  }
+  .terminal-stat-label { font-size: 12px; color: var(--lgrey); }
+
+  .efficiency-table {
+    width: 100%; border-collapse: collapse; margin-top: 2rem;
+    font-size: 13px;
+  }
+  .efficiency-table td {
+    padding: 0.7rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.08);
+    color: var(--lgrey);
+  }
+  .efficiency-table td:first-child { color: var(--white); font-weight: 500; }
+  .efficiency-table td:last-child {
+    color: var(--mint); font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    text-align: right;
+  }
+
+  /* ── CLOSING ────────────────────────────────────────────────────────────── */
+  .closing {
+    background: var(--navy); border-top: 1px solid rgba(2,195,154,0.2);
+    padding: 3rem 2rem; text-align: center;
+  }
+  .closing-quote {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    color: var(--white); max-width: 700px;
+    margin: 0 auto 2rem; line-height: 1.4;
+  }
+  .closing-quote em { color: var(--mint); font-style: italic; }
+  .closing-meta {
+    font-size: 11px; color: var(--dgrey);
+    letter-spacing: 0.06em; line-height: 1.8;
+  }
+  .closing-meta a { color: var(--teal); text-decoration: none; }
+
+  /* ── PRINT / RESPONSIVE ─────────────────────────────────────────────────── */
+  @media (max-width: 700px) {
+    .hero-stats { grid-template-columns: repeat(2, 1fr); }
+    .batch-row { grid-template-columns: 1fr 1fr; }
+    .batch-cell:nth-child(n+3) { display: none; }
+    .nav-links { display: none; }
+    .terminal-stats { grid-template-columns: 1fr; }
+  }
+  @media print {
+    nav { display: none; }
+    .hero { min-height: auto; padding-top: 2rem; }
+    body { background: white; }
+    .callout { border: 1px solid var(--teal); }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav>
+  <div class="nav-brand">DELPER GCCP · CONFIDENTIAL · JUNE 2026</div>
+  <div class="nav-links">
+    <a href="#seed">Seed</a>
+    <a href="#y4">Year 4</a>
+    <a href="#land">Land</a>
+    <a href="#ipo">IPO</a>
+    <a href="#build">Build</a>
+    <a href="#terminal">Terminal</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">Delper Ecom Holdings Pte Ltd · Singapore</div>
+  <h1 class="hero-title">
+    From <em>$66.5M</em><br>to the World
+  </h1>
+  <p class="hero-sub">
+    A 17-year programme from a single trade-profit seed to 2,200 smart cities,
+    6 billion residents, and $55 trillion in annual income.
+  </p>
+  <div class="terminal-number"><span>$1,100</span> Trillion</div>
+  <div class="terminal-label">Terminal Enterprise Value · Year 17 · 20× Revenue</div>
+  <div class="hero-stats">
+    <div class="hero-stat"><span class="hero-stat-val">$66.5M</span><div class="hero-stat-label">Seed capital from trade profits</div></div>
+    <div class="hero-stat"><span class="hero-stat-val">6B</span><div class="hero-stat-label">Users onboarded by Year 4</div></div>
+    <div class="hero-stat"><span class="hero-stat-val">$10.62T</span><div class="hero-stat-label">Year 4 annual income</div></div>
+    <div class="hero-stat"><span class="hero-stat-val">2,200</span><div class="hero-stat-label">Smart cities by Year 17</div></div>
+    <div class="hero-stat"><span class="hero-stat-val">531,000×</span><div class="hero-stat-label">Return on seed capital</div></div>
+  </div>
+</section>
+
+<!-- PAGE BODY -->
+<div class="page">
+
+  <div class="banner">CONFIDENTIAL — NOT FOR REDISTRIBUTION · For institutional discussion purposes only · delperecom.com · ahanainvestments.com</div>
+
+  <!-- SECTION 1: SEED -->
+  <section class="section" id="seed">
+    <div class="section-header">
+      <div class="section-num">01 · SEED</div>
+      <h2 class="section-title">$66.5 Million — <em>Not a Penny of Venture Equity</em></h2>
+    </div>
+    <div class="section-rule"></div>
+
+    <p>The programme begins with <strong>$66.5 million raised entirely from trade profits</strong> — the operating surplus generated through Ahana Investments in the UAE, where personal income from trade is received at 0% corporate and personal tax. No venture capital. No institutional dilution. No public market obligation. The promoter enters the capital markets with <strong>100% of the 10 trillion authorised shares intact.</strong></p>
+
+    <p>The seed funds: Singapore holding company incorporation · provisional patent on the 6-layer recursive algorithm · Hyperledger Fabric across three nodes (Singapore, UAE, India) · FinCEN MSB registration · VARA sandbox application · legal opinions from Debevoise, Linklaters, AZB, Al Tamimi, WongPartnership, and Clifford Chance · L&T Kalburgi feasibility study · SBLC term sheet with DBS Singapore · 500 pilot merchants from Radiant Synage in Month 1.</p>
+
+    <p>The CEO converts the $66.5M seed into <strong>$103.3M total available capital</strong> through the SBLC bridge: $54.4M SPV credit line from DBS against the rated SBLC, plus $48.8M seed reserve — 55% more than the target, zero additional equity dilution.</p>
+
+    <div class="stat-grid">
+      <div class="stat-card"><span class="stat-card-val">55.4M</span><div class="stat-card-label">Users · End Year 1</div></div>
+      <div class="stat-card"><span class="stat-card-val">$26M</span><div class="stat-card-label">Net profit · Year 1 · Tax-free</div></div>
+      <div class="stat-card dark"><span class="stat-card-val">$103.3M</span><div class="stat-card-label">Total capital from $66.5M seed via SBLC</div></div>
+    </div>
+  </section>
+
+  <!-- SECTION 2: YEAR 2 -->
+  <section class="section" id="y2">
+    <div class="section-header">
+      <div class="section-num">02 · YEAR 2</div>
+      <h2 class="section-title">The <em>$1 Billion</em> Trade Profit Raise</h2>
+    </div>
+    <div class="section-rule"></div>
+
+    <p>In Year 2 — having demonstrated 55 million users, live token economics, and $26M in tax-free profit — the programme raises <strong>$1 billion from trade profits</strong>. Not venture capital. Not NFT speculation. Commercial surplus, tax-free from the UAE, recycled into the Singapore holding company as equity.</p>
+
+    <table class="data-table">
+      <thead><tr><th>Allocation</th><th>Amount</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td class="bold">Technology Acceleration</td><td class="teal">$400M</td><td>Hyperledger: 3 → 27 nodes across 9 countries · CertiK + Trail of Bits audit · SAP Ariba B2B integration</td></tr>
+        <tr><td class="bold">Global Merchant Expansion</td><td class="teal">$300M</td><td>50,000 → 500,000 merchants across India, UAE, Southeast Asia, East Africa</td></tr>
+        <tr><td class="bold">Regulatory Filing Programme</td><td class="teal">$200M</td><td>S-1 (SEC) · DRHP (SEBI) · FCA Prospectus · SGX listing — all four exchanges ready for Year 5 IPO</td></tr>
+        <tr><td class="bold">NFT Programme Seed</td><td class="teal">$100M</td><td>30,120 utility franchise NFTs — raising $1B in Year 3</td></tr>
+        <tr class="total"><td>TOTAL DEPLOYED</td><td>$1.000B</td><td>Year 2 result: 277M users · $3.35B net profit · $6.8B ETH pool</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- SECTION 3: YEAR 3 -->
+  <section class="section" id="y3">
+    <div class="section-header">
+      <div class="section-num">03 · YEAR 3</div>
+      <h2 class="section-title">Onboarding Acceleration & <em>NFT Raise</em></h2>
+    </div>
+    <div class="section-rule"></div>
+
+    <p>Year 3 is the year of physical scale. The <strong>Kalburgi 500-acre AI-robotic food processing facility</strong> becomes operational, making the Delper marketplace physically real for hundreds of millions of Indian users. The platform becomes a full supply chain ecosystem across all 6 layers simultaneously.</p>
+
+    <p>The $1 billion NFT raise completes. 30,120 franchise NFT holders — each a motivated distribution partner with a financial incentive to onboard merchants and users within their licensed territory — become the most powerful ground-level distribution network in the programme.</p>
+
+    <div class="callout">
+      <p><strong>Three-year pre-IPO total:</strong> $66.5M seed + $1B trade raise + $1B NFT = <strong>$2.07B total external input.</strong> Against this: $13B cumulative tax-free profit · 831M users · $39B ETH pool · Zero venture equity · Zero IPO dilution · 100% promoter control intact.</p>
+    </div>
+  </section>
+
+  <!-- SECTION 4: YEAR 4 -->
+  <section class="section" id="y4">
+    <div class="section-header">
+      <div class="section-num">04 · YEAR 4</div>
+      <h2 class="section-title">6 Billion Users · <em>$10.62 Trillion</em></h2>
+    </div>
+    <div class="section-rule"></div>
+
+    <p>The transition from 831 million to 6 billion users is driven by one irreducible fact: <strong>Delper pays users $247 per month.</strong> At $2,964 per year — exceeding per capita income in 47 countries — onboarding is not a marketing challenge. It is a financial inevitability.</p>
+
+    <table class="data-table">
+      <thead><tr><th>Revenue Stream</th><th>Mechanism</th><th>Monthly</th><th>Annual</th></tr></thead>
+      <tbody>
+        <tr><td class="bold">Platform Revenue</td><td>6B users × $83.33/month (ads, surveys, token fees, data)</td><td class="teal">$500B</td><td class="green">$6.000T</td></tr>
+        <tr><td class="bold">Token Fees (6 Layers)</td><td>70% of $110T GDP × 6 layers × 1% per layer</td><td class="teal">$385B</td><td class="green">$4.620T</td></tr>
+        <tr class="total"><td>TOTAL YEAR 4 ★</td><td>Pure digital income — zero hard asset required</td><td>$885B/mo</td><td>$10.620T/yr</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-family:'DM Serif Display',serif; color:var(--navy); font-size:1.2rem; margin: 2rem 0 1rem;">The 6-Layer Token Fee Stack</h3>
+    <p style="font-size:13px; margin-bottom:1rem;">Every dollar of global GDP flowing through the Delper ecosystem passes through 6 distinct layers. Each charges 1%. Total effective fee: 6% on $77T = $4.62T annually.</p>
+
+    <div class="layer-stack">
+      <div class="layer-item">
+        <div class="layer-badge">L1</div>
+        <div class="layer-body">
+          <div><div class="layer-name">Producer / Farmer / Manufacturer</div><div class="layer-func">Raw goods procurement payments in DPR · $77T volume</div></div>
+          <div class="layer-fee">$0.77T</div>
+        </div>
+      </div>
+      <div class="layer-item">
+        <div class="layer-badge">L2</div>
+        <div class="layer-body">
+          <div><div class="layer-name">Processor / Transformer</div><div class="layer-func">Inter-business B2B settlement · $77T volume</div></div>
+          <div class="layer-fee">$0.77T</div>
+        </div>
+      </div>
+      <div class="layer-item">
+        <div class="layer-badge">L3</div>
+        <div class="layer-body">
+          <div><div class="layer-name">Distributor / Wholesaler</div><div class="layer-func">Logistics node clearing · $77T volume</div></div>
+          <div class="layer-fee">$0.77T</div>
+        </div>
+      </div>
+      <div class="layer-item">
+        <div class="layer-badge">L4</div>
+        <div class="layer-body">
+          <div><div class="layer-name">Retailer / Merchant</div><div class="layer-func">Point-of-sale DPR acceptance · $77T volume</div></div>
+          <div class="layer-fee">$0.77T</div>
+        </div>
+      </div>
+      <div class="layer-item">
+        <div class="layer-badge">L5</div>
+        <div class="layer-body">
+          <div><div class="layer-name">Consumer / End User</div><div class="layer-func">$247/month earn-and-spend redemption · $77T volume</div></div>
+          <div class="layer-fee">$0.77T</div>
+        </div>
+      </div>
+      <div class="layer-item">
+        <div class="layer-badge">L6</div>
+        <div class="layer-body">
+          <div><div class="layer-name">Platform / Smart Infrastructure</div><div class="layer-func">Smart contract settlement + data monetisation · $77T volume</div></div>
+          <div class="layer-fee">$0.77T</div>
+        </div>
+      </div>
+      <div class="layer-item total">
+        <div class="layer-badge">★</div>
+        <div class="layer-body">
+          <div><div class="layer-name">Total · 6 Toll Points on Every Dollar of GDP</div><div class="layer-func">$462T total transaction volume processed</div></div>
+          <div class="layer-fee">$4.62T</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p>From Year 4 income: <strong>$7.5T deployed immediately</strong> to begin construction of the first 50 smart cities at $150B each. <strong>$3.12T retained</strong> as the opening balance of the global land acquisition fund.</p>
+    </div>
+  </section>
+
+  <!-- SECTION 5: LAND MANDATE -->
+  <section class="section" id="land">
+    <div class="section-header">
+      <div class="section-num">05 · LAND</div>
+      <h2 class="section-title">The <em>$110.62 Trillion</em> Land Mandate</h2>
+    </div>
+    <div class="section-rule"></div>
+
+    <p>Over Years 4 through 14, cumulative platform and token fee income reaches <strong>$110.62 trillion.</strong> The strategic decision is singular and permanent: use this cumulative digital income to acquire shovel-ready, permitted land for all 2,200 cities globally — before the IPO launches.</p>
+
+    <table class="data-table">
+      <thead><tr><th>Land Programme</th><th>Calculation</th><th>Amount</th></tr></thead>
+      <tbody>
+        <tr><td class="bold">Land cost per city</td><td>Acquisition + permissions + clearances (12% of $150B)</td><td class="teal">$18B</td></tr>
+        <tr><td class="bold">Total land: 2,200 cities</td><td>2,200 × $18B</td><td class="teal">$39.6T</td></tr>
+        <tr><td class="bold">Cumulative digital revenue pool</td><td>Y4–Y14 platform + token fees compounding</td><td class="green">$110.62T</td></tr>
+        <tr class="total"><td>Balance after land purchase</td><td>Pre-construction civil works + working capital globally</td><td>$71.02T</td></tr>
+      </tbody>
+    </table>
+
+    <p>The consequence is permanent. By IPO launch, Delper Ecom is not pitching a plan to build 2,200 cities. It is presenting <strong>2,200 sites legally owned, permitted, shovel-ready, and partially pre-tenanted</strong> across 60 countries. No competitor can assemble 11 million acres of permitted urban development land globally in any reasonable timeframe.</p>
+
+    <h3 style="font-family:'DM Serif Display',serif; color:var(--navy); font-size:1.2rem; margin: 2rem 0 1rem;">Industrial Pre-Bookings — $990B Contracted Before the IPO</h3>
+
+    <table class="data-table">
+      <thead><tr><th>Pre-Booking Model</th><th>Per City / Year</th><th>× 2,200 Cities</th></tr></thead>
+      <tbody>
+        <tr><td class="bold">Total rental income per city</td><td>$15B (10% × $150B)</td><td class="teal">$33T/yr</td></tr>
+        <tr><td class="bold">Industrial/logistics share (10%)</td><td>$1.5B/city/yr</td><td class="teal">$3.3T/yr</td></tr>
+        <tr class="total"><td>30% pre-contracted to anchor tenants</td><td>$450M/city/yr</td><td>$990B/yr · legally binding</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <p><strong>For institutional investors:</strong> Pre-contracted $990B/yr income + $10.62T digital revenue + 2,200 shovel-ready sites = <strong>the IPO is a valuation event, not a fundraising risk.</strong></p>
+    </div>
+  </section>
+
+  <!-- SECTION 6: IPO -->
+  <section class="section" id="ipo">
+    <div class="section-header">
+      <div class="section-num">06 · IPO</div>
+      <h2 class="section-title">Year 5 — <em>$75 Trillion</em> on Five Exchanges</h2>
+    </div>
+    <div class="section-rule"></div>
+
+    <p>The IPO launches in Year 5 cross-listed on <strong>NASDAQ · BSE · NSE · LSE · SGX.</strong> It raises $75 trillion at a $750 trillion market capitalisation — 10× NAV of 500 committed cities at $150B each, reflecting the platform income multiple, the pre-contracted industrial tenant base, the 6 billion captive users, and the irreplaceable global land position. Float: 10% of 10 trillion shares. Promoter retains 60% equity and 93.5% permanent voting control.</p>
+
+    <table class="data-table">
+      <thead><tr><th>Year 5 Income Stream</th><th>Annual</th><th>Monthly</th></tr></thead>
+      <tbody>
+        <tr><td class="bold">Platform fees (6.6B users × $83.33/mo)</td><td class="green">$6.600T</td><td class="teal">$550B</td></tr>
+        <tr><td class="bold">Token fees (1% × 6L × 80% GDP)</td><td class="green">$5.465T</td><td class="teal">$455B</td></tr>
+        <tr><td class="bold">City rental — 50 cities (Year 4 batch)</td><td class="green">$0.750T</td><td class="teal">$62.5B</td></tr>
+        <tr class="total"><td>TOTAL YEAR 5 ★</td><td>$19.565T/yr (+84% vs Y4)</td><td>$1.630T/mo</td></tr>
+      </tbody>
+    </table>
+
+    <div class="stat-grid">
+      <div class="stat-card"><span class="stat-card-val">$293T</span><div class="stat-card-label">Conservative valuation (15×)</div></div>
+      <div class="stat-card dark"><span class="stat-card-val">$391T</span><div class="stat-card-label">Base valuation (20×)</div></div>
+      <div class="stat-card"><span class="stat-card-val">$587T</span><div class="stat-card-label">Premium valuation (30×)</div></div>
+      <div class="stat-card dark"><span class="stat-card-val">$234T</span><div class="stat-card-label">Promoter stake at base (60%)</div></div>
+    </div>
+  </section>
+
+  <!-- SECTION 7: BUILD -->
+  <section class="section" id="build">
+    <div class="section-header">
+      <div class="section-num">07 · BUILD</div>
+      <h2 class="section-title">Five Batches · <em>17 Years</em> · 3 Years Each</h2>
+    </div>
+    <div class="section-rule"></div>
+
+    <p>Because all 2,200 city sites are already owned, permitted, and shovel-ready from cumulative platform revenue, each construction batch requires only <strong>3 years</strong> — not 5 to 7. Land acquisition, planning permission, and environmental clearance are already complete. L&T mobilises across all sites simultaneously. The programme completes in Year 17 — <strong>18 years ahead of the original 35-year schedule.</strong></p>
+
+    <div class="batch-grid">
+      <div class="batch-row header">
+        <div class="batch-cell">Batch</div>
+        <div class="batch-cell">Cities</div>
+        <div class="batch-cell">Period</div>
+        <div class="batch-cell">Capital Source</div>
+        <div class="batch-cell">Ops From</div>
+        <div class="batch-cell">Rental Added</div>
+      </div>
+      <div class="batch-row">
+        <div class="batch-cell bold">Batch 0</div>
+        <div class="batch-cell">50</div>
+        <div class="batch-cell">Y4–Y7</div>
+        <div class="batch-cell">$7.5T from Year 4 digital revenue</div>
+        <div class="batch-cell green">Y7</div>
+        <div class="batch-cell green">$750B/yr</div>
+      </div>
+      <div class="batch-row">
+        <div class="batch-cell bold">Batch 1</div>
+        <div class="batch-cell">500</div>
+        <div class="batch-cell">Y5–Y8</div>
+        <div class="batch-cell">$75T IPO proceeds</div>
+        <div class="batch-cell green">Y8</div>
+        <div class="batch-cell green">$7.5T/yr</div>
+      </div>
+      <div class="batch-row">
+        <div class="batch-cell bold">Batch 2</div>
+        <div class="batch-cell">500</div>
+        <div class="batch-cell">Y8–Y11</div>
+        <div class="batch-cell">FPO1 (liquidity) + $20T+/yr reinvested ops</div>
+        <div class="batch-cell green">Y11</div>
+        <div class="batch-cell green">$7.5T/yr</div>
+      </div>
+      <div class="batch-row">
+        <div class="batch-cell bold">Batch 3</div>
+        <div class="batch-cell">500</div>
+        <div class="batch-cell">Y11–Y14</div>
+        <div class="batch-cell">FPO2 (crystallisation) + $29T+/yr reinvested ops</div>
+        <div class="batch-cell green">Y14</div>
+        <div class="batch-cell green">$7.5T/yr</div>
+      </div>
+      <div class="batch-row">
+        <div class="batch-cell bold">Batch 4</div>
+        <div class="batch-cell">650</div>
+        <div class="batch-cell">Y14–Y17</div>
+        <div class="batch-cell">FPO3 (sovereign wealth) + $39T+/yr reinvested ops</div>
+        <div class="batch-cell green">Y17</div>
+        <div class="batch-cell green">$9.75T/yr</div>
+      </div>
+      <div class="batch-row total-row">
+        <div class="batch-cell">★ TOTAL</div>
+        <div class="batch-cell">2,200</div>
+        <div class="batch-cell">Y4–Y17</div>
+        <div class="batch-cell">Digital income + IPO + 3 FPOs</div>
+        <div class="batch-cell">Y17</div>
+        <div class="batch-cell">$33T/yr</div>
+      </div>
+    </div>
+
+    <p style="margin-top:1.5rem;">FPO1 (Y8) · FPO2 (Y11) · FPO3 (Y14) are <strong>market crystallisation events, not funding necessities.</strong> By each trigger date, operating cash from rental plus platform and token fees already covers the next batch in full. The FPOs exist to allow global exchanges and sovereign wealth funds — PIF, ADIA, GIC, Temasek, CPPIB — to take positions in a programme that is already cashflow positive by a multiple of 400× its annual construction requirement.</p>
+  </section>
+
+</div><!-- /page -->
+
+<!-- TERMINAL STATE -->
+<section class="terminal-section" id="terminal">
+  <div class="terminal-inner">
+    <div class="section-header">
+      <div class="section-num">08 · TERMINAL</div>
+      <h2 class="section-title">Year 17 — <em>The Landlord of the World</em></h2>
+    </div>
+    <div class="section-rule"></div>
+
+    <p>All 2,200 cities operational. Three income streams in perpetual steady state. No further construction. No further FPO. No further dilution. The programme completes 18 years ahead of schedule, entirely because $66.5 million in trade profit discipline and the deployment of digital revenue to secure global land before the IPO <strong>removed every construction delay from the critical path.</strong></p>
+
+    <div class="terminal-stats">
+      <div class="terminal-stat"><span class="terminal-stat-val">$22T/yr</span><div class="terminal-stat-label">Platform + Token Fees</div></div>
+      <div class="terminal-stat"><span class="terminal-stat-val">$33T/yr</span><div class="terminal-stat-label">City Rental · 2,200 Cities</div></div>
+      <div class="terminal-stat"><span class="terminal-stat-val">$55T/yr</span><div class="terminal-stat-label">Total Annual Income</div></div>
+      <div class="terminal-stat"><span class="terminal-stat-val">$1,100T</span><div class="terminal-stat-label">Enterprise Value · 20×</div></div>
+      <div class="terminal-stat"><span class="terminal-stat-val">$660T</span><div class="terminal-stat-label">Promoter Stake · 60%</div></div>
+      <div class="terminal-stat"><span class="terminal-stat-val">$990B/yr</span><div class="terminal-stat-label">Pre-contracted industrial rental · secured Year 4</div></div>
+    </div>
+
+    <table class="efficiency-table">
+      <tr><td>Total pre-IPO external capital input</td><td>$2.07B</td></tr>
+      <tr><td>Terminal enterprise value</td><td>$1,100T</td></tr>
+      <tr><td>Return multiple on seed capital</td><td>531,000×</td></tr>
+      <tr><td>Years to completion</td><td>17 (vs 35-year original plan)</td></tr>
+      <tr><td>Time saved by pre-buying land from digital revenue</td><td>18 years</td></tr>
+      <tr><td>Pre-contracted industrial rental locked in Year 4</td><td>$990B/yr perpetual</td></tr>
+      <tr><td>Cities ever sold</td><td>Zero — held in perpetuity</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- CLOSING -->
+<div class="closing">
+  <p class="closing-quote">
+    Cities are never sold. The income compounds forever.<br>
+    Delper Ecom becomes, in the most literal and permanent financial sense,<br>
+    <em>the landlord, the banker, and the marketplace of the world.</em>
+  </p>
+  <div class="closing-meta">
+    CONFIDENTIAL — NOT FOR REDISTRIBUTION · Forward-looking projections based on stated programme inputs<br>
+    Independent legal, financial and tax advice required before any decision<br>
+    <a href="https://delperecom.com">delperecom.com</a> · <a href="https://ahanainvestments.com">ahanainvestments.com</a> · © Delper Ecom Holdings Pte Ltd 2026
+  </div>
+</div>
+
+</body>
+</html>
